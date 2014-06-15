@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../Headers/Mouvement.h"
-#include "../Headers/Timers.h"
 #include "../Headers/UART.h"
 #include "../Headers/PWM.h"
 #include "../Headers/math.h"
@@ -73,10 +72,15 @@ void OpenQEI(void)
     ConfigIntQEI2(QEI_INT_PRI_6 & QEI_INT_ENABLE);
     
     
-    /* Initialisation du timer de mise à jour des variables de mouvement*/
+    /* Initialisation du timer de mise à jour des variables de mouvement toutes les 5ms */
     OpenTimer1(T1_OFF & T1_GATE_OFF & T1_IDLE_CON & T1_PS_1_64 & T1_SOURCE_INT,3124);
     ConfigIntTimer1(T1_INT_PRIOR_5 & T1_INT_ON);
     T1CONbits.TON = 1;  /* Turn on timer 1 */
+
+    /* On ouvre le Timer4 qui envoie la position toutes les 50ms */
+    OpenTimer4(T4_OFF & T4_GATE_OFF & T4_IDLE_CON & T4_SOURCE_INT & T4_PS_1_256 & T4_32BIT_MODE_OFF, 23436);
+    ConfigIntTimer4(T4_INT_PRIOR_2 & T4_INT_ON); //Interruption ON et priorité 3
+    T4CONbits.TON = 1;  /* Turn on timer 4 */
 }
 void closeQEI(void)
 {
@@ -193,6 +197,11 @@ void transformVRoues(float v, float w, float *vg, float *vd) {
     *vd = v + ENTRAXE * w / 2.0;
 }
 
+void transformVMots(float v, float w, float *vg, float *vd) {
+    *vg = v - ENTRAXEM * w / 2.0;
+    *vd = v + ENTRAXEM * w / 2.0;
+}
+
 Vitesse* getVitesse(void)
 {
     return &vitesse;
@@ -208,4 +217,14 @@ void setPosition(float x, float y, float theta)
 Position* getPosition(void)
 {
     return &position;
+}
+
+void __attribute__((interrupt,no_auto_psv)) _T4Interrupt(void)
+{
+    char transmit[200];
+    sprintf(transmit, "X%fY%fT%fV%fW%f\n", (double)position.x, (double)position.y, (double)position.t, (double)vitesse.v, (double)vitesse.w);
+
+    putsUART(transmit);
+
+    IFS1bits.T4IF = 0; /* Clear timer 4 interrupt flag*/
 }

@@ -4,7 +4,6 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>Headers/ADC.h</itemPath>
       <itemPath>Headers/Asservissement.h</itemPath>
       <itemPath>Headers/AsservissementVitesse.h</itemPath>
       <itemPath>Headers/Clock.h</itemPath>
@@ -13,7 +12,6 @@
       <itemPath>Headers/Mouvement.h</itemPath>
       <itemPath>Headers/PID.h</itemPath>
       <itemPath>Headers/PWM.h</itemPath>
-      <itemPath>Headers/Timers.h</itemPath>
       <itemPath>Headers/UART.h</itemPath>
       <itemPath>Headers/math.h</itemPath>
       <itemPath>Headers/PID_.h</itemPath>
@@ -26,7 +24,6 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>Sources/ADC.c</itemPath>
       <itemPath>Sources/Asservissement.c</itemPath>
       <itemPath>Sources/AsservissementVitesse.c</itemPath>
       <itemPath>Sources/Clock.c</itemPath>
@@ -36,7 +33,6 @@
       <itemPath>Sources/newmainXC16.c</itemPath>
       <itemPath>Sources/PID.c</itemPath>
       <itemPath>Sources/PWM.c</itemPath>
-      <itemPath>Sources/Timers.c</itemPath>
       <itemPath>Sources/UART.c</itemPath>
       <itemPath>Sources/PID_.c</itemPath>
       <itemPath>Sources/AsservissementPosition.c</itemPath>
@@ -232,6 +228,7 @@
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="UART 1" value="true"/>
         <property key="UART 2" value="true"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>

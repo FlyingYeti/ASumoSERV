@@ -44,13 +44,13 @@ static void setPWMs(void);
 static void setConsignePIDgd(float, float);
 
 #ifndef PID_
-sPID PIDP1, PIDP2;
+sPID PIDPd, PIDPg;
 #else
-sPID_ PIDP1, PIDP2;
+sPID_ PIDPd, PIDPg;
 #endif
 
-static float kCoeffs1P[] = {0, 0, 0};
-static float kCoeffs2P[] = {0, 0, 0};
+static float kCoeffsgP[] = {0, 0, 0};
+static float kCoeffsdP[] = {0, 0, 0};
 
 void runAsservPosition()
 {
@@ -58,17 +58,17 @@ void runAsservPosition()
     float dt = tc - t0;
     float dp1 = dl + ENTRAXE * dt / 2;
     float dp2 = dl - ENTRAXE * dt / 2;
-    setConsignePIDgd(dp1, dp2);
+    setConsignePIDgd(dp2, dp1);
     runPIDs();
     setPWMs();
 }
 
 void voidrunAsservPosition(void)
 {
-    setConsignePIDgd(pos->p1, pos->p2);
+    setConsignePIDgd(pos->p2, pos->p1);
 #ifdef PID_
-    resetPID_IVal(&PIDP1);
-    resetPID_IVal(&PIDP2);
+    resetPID_IVal(&PIDPd);
+    resetPID_IVal(&PIDPg);
 #endif
     runPIDs();
 }
@@ -79,73 +79,73 @@ void initAsservPosition(void) {
      */
     pos = getPosition();
 
-    kCoeffs1P[0] = 0.25;
-    kCoeffs1P[1] = 0.;
-    kCoeffs1P[2] = 1.;
+    kCoeffsgP[0] = 0.25;
+    kCoeffsgP[1] = 0.;
+    kCoeffsgP[2] = 1.;
 
-    kCoeffs2P[0] = .25;
-    kCoeffs2P[1] = 0.;
-    kCoeffs2P[2] = 1.;
+    kCoeffsdP[0] = .25;
+    kCoeffsdP[1] = 0.;
+    kCoeffsdP[2] = 1.;
 #ifndef PID_
-    initPID(&PIDP1); /*Clear the controller history and the controller output */
-    setPIDCoeffs(&PIDP1, kCoeffs1P); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
-    setPIDMeas(&PIDP1, pos->p1);
+    initPID(&PIDPd); /*Clear the controller history and the controller output */
+    setPIDCoeffs(&PIDPd, kCoeffs1P); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
+    setPIDMeas(&PIDPd, pos->p1);
 
-    initPID(&PIDP2); /*Clear the controller history and the controller output */
-    setPIDCoeffs(&PIDP2, kCoeffs2P); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
-    setPIDMeas(&PIDP2, pos->p2);
+    initPID(&PIDPg); /*Clear the controller history and the controller output */
+    setPIDCoeffs(&PIDPg, kCoeffs2P); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
+    setPIDMeas(&PIDPg, pos->p2);
 #else
-    initPID_(&PIDP1); /*Clear the controller history and the controller output */
-    setPID_Coeffs(&PIDP1, kCoeffs1P); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
-    setPID_Meas(&PIDP1, pos->p1);
+    initPID_(&PIDPd); /*Clear the controller history and the controller output */
+    setPID_Coeffs(&PIDPd, kCoeffsdP); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
+    setPID_Meas(&PIDPd, pos->p1);
 
-    initPID_(&PIDP2); /*Clear the controller history and the controller output */
-    setPID_Coeffs(&PIDP2, kCoeffs2P); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
-    setPID_Meas(&PIDP2, pos->p2);
+    initPID_(&PIDPg); /*Clear the controller history and the controller output */
+    setPID_Coeffs(&PIDPg, kCoeffsgP); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
+    setPID_Meas(&PIDPg, pos->p2);
 
-    setPID_Overshoot(&PIDP1,1);
-    setPID_OvershootVal(&PIDP1, 10.0);
+    setPID_Overshoot(&PIDPd,1);
+    setPID_OvershootVal(&PIDPd, 10.0);
 
-    setPID_Overshoot(&PIDP2,1);
-    setPID_OvershootVal(&PIDP2, 10.0);
+    setPID_Overshoot(&PIDPg,1);
+    setPID_OvershootVal(&PIDPg, 10.0);
 #endif
 
     setConsignePIDgd(0.0,0.0);
 }
 
-void setConsignePIDgd(float p1, float p2)
+void setConsignePIDgd(float g, float d)
 {
 #ifndef PID_
-    setPIDRef(&PIDP1,p1); /*Set the Reference Input for your controller */
-    setPIDRef(&PIDP2,p2); /*Set the Reference Input for your controller */
+    setPIDRef(&PIDPd,d); /*Set the Reference Input for your controller */
+    setPIDRef(&PIDPg,g); /*Set the Reference Input for your controller */
 #else
-    setPID_Ref(&PIDP1,p1); /*Set the Reference Input for your controller */
-    setPID_Ref(&PIDP2,p2); /*Set the Reference Input for your controller */
+    setPID_Ref(&PIDPd,d); /*Set the Reference Input for your controller */
+    setPID_Ref(&PIDPg,g); /*Set the Reference Input for your controller */
 #endif
 }
 
 void runPIDs(void) {
 #ifndef PID_
-    setPIDMeas(&PIDP1, pos->p1);
-    setPIDMeas(&PIDP2, pos->p2);
-    computePID(&PIDP1);
-    computePID(&PIDP2);
+    setPIDMeas(&PIDPd, pos->p1);
+    setPIDMeas(&PIDPg, pos->p2);
+    computePID(&PIDPd);
+    computePID(&PIDPg);
 #else
-    setPID_Meas(&PIDP1, pos->p1);
-    setPID_Meas(&PIDP2, pos->p2);
-    computePID_(&PIDP1);
-    computePID_(&PIDP2);
+    setPID_Meas(&PIDPd, pos->p1);
+    setPID_Meas(&PIDPg, pos->p2);
+    computePID_(&PIDPd);
+    computePID_(&PIDPg);
 #endif
 }
 
 void setPWMs(void)
 {
 #ifndef PID_
-    setSpeed1((int)(getPIDOut(&PIDP1) * MAXDC));
-    setSpeed2((int)(getPIDOut(&PIDP2) * MAXDC));
+    setSpeed1((int)(getPIDOut(&PIDPd) * MAXDC));
+    setSpeed2((int)(getPIDOut(&PIDPg) * MAXDC));
 #else
-    setSpeed1((int)(getPID_Out(&PIDP1) * MAXDC));
-    setSpeed2((int)(getPID_Out(&PIDP2) * MAXDC));
+    setSpeed1((int)(getPID_Out(&PIDPd) * MAXDC));
+    setSpeed2((int)(getPID_Out(&PIDPg) * MAXDC));
 #endif
 }
 
@@ -161,7 +161,7 @@ sPID_ PIDl, PIDt;
 
 float kCoeffsl[] = {0, 0, 0};
 float kCoeffst[] = {0, 0, 0};
-float p = 2;
+float p = 10;
 
 void runAsservPosition(void)
 {
@@ -249,16 +249,14 @@ void runPIDs(void)
 }
 
 void setPWMs(void) {
-    float v1, v2;
+    float vg, vd;
 #ifndef PID_
-    v1 = getPIDOut(&PIDl) + getPIDOut(&PIDt) * ENTRAXE / 2;
-    v2 = getPIDOut(&PIDl) - getPIDOut(&PIDt) * ENTRAXE / 2;
+    transformVMots(getPIDOut(&PIDl), getPIDOut(&PIDt) * ENTRAXE / 2, &vg, &vd);
 #else
-    v1 = getPID_Out(&PIDl) + getPID_Out(&PIDt) * ENTRAXE / 2;
-    v2 = getPID_Out(&PIDl) - getPID_Out(&PIDt) * ENTRAXE / 2;
+    transformVMots(getPID_Out(&PIDl), getPID_Out(&PIDt) * ENTRAXE / 2, &vg, &vd);
 #endif
-    setSpeed1((int)(v1 * MAXDC));
-    setSpeed2((int)(v2 * MAXDC));
+    setSpeed1((int)(vd * MAXDC));
+    setSpeed2((int)(vg * MAXDC));
 }
 
 #endif

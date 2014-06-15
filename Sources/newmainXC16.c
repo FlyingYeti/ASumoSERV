@@ -54,11 +54,6 @@ _FICD( JTAGEN_OFF              // JTAG is disabled
 int main(void)
 {
     Init();
-    while(1)
-    {
-        __delay32(4000000);
-        sendOdometrie();
-    }
-
+    while(1);
     return 0;
 }

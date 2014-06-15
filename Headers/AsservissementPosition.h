@@ -12,8 +12,8 @@
 extern "C" {
 #endif
 
-    #define MAXDIST 0.5
-    #define MAXANGLE 2
+    #define MAXDIST 0.25
+    #define MAXANGLE 1.6
     extern void initAsservPosition(void);
     extern void runAsservPosition(void);
     extern void setConsignePosition(float, float);

@@ -35,30 +35,30 @@ static void setPWMs(void);
 static void setConsignePIDgd(float, float);
 
 #ifndef PID_
-sPID PIDV1, PIDV2;
+sPID PIDVd, PIDVg;
 #else
-sPID_ PIDV1, PIDV2;
+sPID_ PIDVd, PIDVg;
 #endif
 
-float kCoeffs1V[] = {0, 0, 0};
-float kCoeffs2V[] = {0, 0, 0};
+float kCoeffsdV[] = {0, 0, 0};
+float kCoeffsgV[] = {0, 0, 0};
 
 void runAsservVitesse()
 {
-    float v1;
-    float v2;
-    transformVRoues(vc,wc,&v1,&v2);
-    setConsignePIDgd(v1,v2);
+    float vd;
+    float vg;
+    transformVRoues(vc,wc,&vg,&vd);
+    setConsignePIDgd(vg,vd);
     runPIDs();
     setPWMs();
 }
 
 void voidrunAsservVitesse()
 {
-    setConsignePIDgd(vit->v1,vit->v2);
+    setConsignePIDgd(vit->v2,vit->v1);
 #ifdef PID_
-    resetPID_IVal(&PIDV1);
-    resetPID_IVal(&PIDV2);
+    resetPID_IVal(&PIDVd);
+    resetPID_IVal(&PIDVg);
 #endif
     runPIDs();
 }
@@ -69,35 +69,35 @@ void initAsservVitesse(void) {
      */
     vit = getVitesse();
 
-    kCoeffs1V[0] = 0.4; // 1.125
-    kCoeffs1V[1] = 0.0836;
-    kCoeffs1V[2] = 0.;
+    kCoeffsdV[0] = 0.4; // 1.125
+    kCoeffsdV[1] = 0.0836;
+    kCoeffsdV[2] = 0.;
     
-    kCoeffs2V[0] = 0.4;
-    kCoeffs2V[1] = 0.0836;
-    kCoeffs2V[2] = 0.;
+    kCoeffsgV[0] = 0.4;
+    kCoeffsgV[1] = 0.0836;
+    kCoeffsgV[2] = 0.;
 #ifndef PID_
-    initPID(&PIDV1); /*Clear the controller history and the controller output */
-    setPIDCoeffs(&PIDV1, kCoeffs1V); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
-    setPIDMeas(&PIDV1, vit->v1);
+    initPID(&PIDVd); /*Clear the controller history and the controller output */
+    setPIDCoeffs(&PIDVd, kCoeffsdV); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
+    setPIDMeas(&PIDVd, vit->v1);
     
-    initPID(&PIDV2); /*Clear the controller history and the controller output */
-    setPIDCoeffs(&PIDV2, kCoeffs2V); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
-    setPIDMeas(&PIDV2, vit->v2);
+    initPID(&PIDVg); /*Clear the controller history and the controller output */
+    setPIDCoeffs(&PIDVg, kCoeffsgV); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
+    setPIDMeas(&PIDVg, vit->v2);
 #else
-    initPID_(&PIDV1); /*Clear the controller history and the controller output */
-    setPID_Coeffs(&PIDV1, kCoeffs1V); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
-    setPID_Meas(&PIDV1, vit->v1);
+    initPID_(&PIDVd); /*Clear the controller history and the controller output */
+    setPID_Coeffs(&PIDVd, kCoeffsdV); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
+    setPID_Meas(&PIDVd, vit->v1);
 
-    initPID_(&PIDV2); /*Clear the controller history and the controller output */
-    setPID_Coeffs(&PIDV2, kCoeffs2V); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
-    setPID_Meas(&PIDV2, vit->v2);
+    initPID_(&PIDVg); /*Clear the controller history and the controller output */
+    setPID_Coeffs(&PIDVg, kCoeffsgV); /*Derive the a,b, & c coefficients from the Kp, Ki & Kd */
+    setPID_Meas(&PIDVg, vit->v2);
 
-    setPID_Overshoot(&PIDV1,1);
-    setPID_OvershootVal(&PIDV1, 10.0);
+    setPID_Overshoot(&PIDVd,1);
+    setPID_OvershootVal(&PIDVd, 10.0);
 
-    setPID_Overshoot(&PIDV2,1);
-    setPID_OvershootVal(&PIDV2, 10.0);
+    setPID_Overshoot(&PIDVg,1);
+    setPID_OvershootVal(&PIDVg, 10.0);
 #endif
 
     setConsignePIDgd(0.0,0.0);
@@ -106,37 +106,37 @@ void initAsservVitesse(void) {
 void setConsignePIDgd(float vg, float vd)
 {
 #ifndef PID_
-    setPIDRef(&PIDV1,vg); /*Set the Reference Input for your controller */
-    setPIDRef(&PIDV2,vd); /*Set the Reference Input for your controller */
+    setPIDRef(&PIDVd,vd); /*Set the Reference Input for your controller */
+    setPIDRef(&PIDVg,vg); /*Set the Reference Input for your controller */
 #else
-    setPID_Ref(&PIDV1,vg); /*Set the Reference Input for your controller */
-    setPID_Ref(&PIDV2,vd); /*Set the Reference Input for your controller */
+    setPID_Ref(&PIDVd,vd); /*Set the Reference Input for your controller */
+    setPID_Ref(&PIDVg,vg); /*Set the Reference Input for your controller */
 #endif
 }
 
 void runPIDs(void)
 {
 #ifndef PID_
-    setPIDMeas(&PIDV1, vit->v1);
-    setPIDMeas(&PIDV2, vit->v2);
-    computePID(&PIDV1);
-    computePID(&PIDV2);
+    setPIDMeas(&PIDVd, vit->v1);
+    setPIDMeas(&PIDVg, vit->v2);
+    computePID(&PIDVd);
+    computePID(&PIDVg);
 #else
-    setPID_Meas(&PIDV1, vit->v1);
-    setPID_Meas(&PIDV2, vit->v2);
-    computePID_(&PIDV1);
-    computePID_(&PIDV2);
+    setPID_Meas(&PIDVd, vit->v1);
+    setPID_Meas(&PIDVg, vit->v2);
+    computePID_(&PIDVd);
+    computePID_(&PIDVg);
 #endif
 }
 
 void setPWMs(void)
 {
 #ifndef PID_
-    setSpeed1((int)(getPIDOut(&PIDV1) * MAXDC));
-    setSpeed2((int)(getPIDOut(&PIDV2) * MAXDC));
+    setSpeed1((int)(getPIDOut(&PIDVd) * MAXDC));
+    setSpeed2((int)(getPIDOut(&PIDVg) * MAXDC));
 #else
-    setSpeed1((int)(getPID_Out(&PIDV1) * MAXDC));
-    setSpeed2((int)(getPID_Out(&PIDV2) * MAXDC));
+    setSpeed1((int)(getPID_Out(&PIDVd) * MAXDC));
+    setSpeed2((int)(getPID_Out(&PIDVg) * MAXDC));
 #endif
 }
 
@@ -176,13 +176,13 @@ void initAsservVitesse(void)
     Step 1: Initialize the PID data structure, PID
      */
     vit = getVitesse();
-    
-    kCoeffsv[0] = 1.0;
-    kCoeffsv[1] = 0.25;
+
+    kCoeffsv[0] = 0.4;
+    kCoeffsv[1] = 0.0836;
     kCoeffsv[2] = 0.0;
     
-    kCoeffsw[0] = 1.0;
-    kCoeffsw[1] = 0.25;
+    kCoeffsw[0] = 0.4*2./ENTRAXE;
+    kCoeffsw[1] = 0.0836*2./ENTRAXE;
     kCoeffsw[2] = 0.0;
 
 #ifndef PID_
@@ -239,14 +239,14 @@ void runPIDs(void)
 }
 
 void setPWMs(void) {
-    float v1, v2;
+    float vg, vd;
 #ifndef PID_
-    transformVRoues(getPIDOut(&PIDv), getPIDOut(&PIDw), &v1, &v2);
+    transformVMots(getPIDOut(&PIDv), getPIDOut(&PIDw), &vg, &vd);
 #else
-    transformVRoues(getPID_Out(&PIDv), getPID_Out(&PIDw), &v1, &v2);
+    transformVMots(getPID_Out(&PIDv), getPID_Out(&PIDw), &vg, &vd);
 #endif
-    setSpeed1((int)(v1 * MAXDC));
-    setSpeed2((int)(v2 * MAXDC));
+    setSpeed1((int)(vd * MAXDC));
+    setSpeed2((int)(vg * MAXDC));
 }
 
 #endif

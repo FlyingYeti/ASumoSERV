@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
     #define MAXSPEED    0.5
-    #define MAXANGVEL   1.5
+    #define MAXANGVEL   3.2
     extern void initAsservVitesse(void);
     extern void runAsservVitesse(void);
     extern void setConsigneVitesse(float, float);

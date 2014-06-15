@@ -14,9 +14,9 @@
 #include "../Headers/Interpreter.h"
 
 #define FCY 40000000
-#define BAUDRATE 57600
+#define BAUDRATE 115200
 #define BRGVAL ((FCY/BAUDRATE)/4)-1
-#define DELAY_175uS asm volatile ("REPEAT, #7000"); Nop(); // 175uS delay
+#define DELAY_87500ns asm volatile ("REPEAT, #3500"); Nop(); // 8750ns delay
 
 void OpenUART(void)
 {
@@ -38,7 +38,7 @@ void OpenUART(void)
 void WriteUART(unsigned char data)
 {
     U1TXREG = data;
-    DELAY_175uS;
+    DELAY_87500ns;
 }
 
 void putsUART(unsigned char *buffer)

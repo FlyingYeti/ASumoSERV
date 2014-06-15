@@ -47,8 +47,9 @@ extern "C" {
 
 
 /*Paramètres géométriques du robot*/
-#define R_ROUE 0.027
-#define ENTRAXE 0.3458
+#define R_ROUE      0.027
+#define ENTRAXE     0.3458
+#define ENTRAXEM    0.3
 
 /* Interval de temps d'execution de l'odométrie*/
 #define DT 0.005
@@ -59,6 +60,7 @@ extern "C" {
     extern void sendOdometrie(void);       // Envoie la position et la vitesse du robot sur le port série
 
     extern void transformVRoues(float, float, float*, float*);     // Renvoie la vitesse des roues
+    extern void transformVMots(float, float, float*, float*);
     extern Vitesse* getVitesse(void);
 
     extern void setPosition(float, float, float);
